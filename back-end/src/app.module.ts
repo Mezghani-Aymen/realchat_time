@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from "./config/config";
 import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -41,6 +42,14 @@ import { JwtModule } from '@nestjs/jwt';
         This is crucial for accessing the configuration values without running into errors.
         It guarantees that the ConfigService is instantiated and ready to be used when useFactory is called.
      */
+    MongooseModule.forRootAsync(
+      {
+        imports: [ConfigModule],
+        useFactory: async (config) => ({
+          uri: config.get('database.connectionString')
+        }),
+        inject: [ConfigService]
+      }),
   ],
   controllers: [AppController],
   providers: [AppService],

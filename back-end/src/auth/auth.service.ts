@@ -8,9 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { LogInDto } from './dto/login.dto';
 import { RefreshToken } from './schemas/refresh-token.schema';
 import { v4 as uuidv4 } from 'uuid'
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {
+
   constructor(
     @InjectModel(User.name) private UserModle: Model<User>,
     @InjectModel(RefreshToken.name) private RefreshTokenModle: Model<RefreshToken>,
@@ -34,6 +36,21 @@ export class AuthService {
       throw new BadRequestException(error);
     }
 
+  }
+
+  async refreshTokens(refreshToken: string) {
+    const token = await this.RefreshTokenModle.findOneAndDelete(
+      {
+        token: refreshToken,
+        expiryDate: { $gte: new Date() }
+      }
+    )
+
+    if (!token) {
+      throw new UnauthorizedException('Refresh Token in invalid')
+    }
+
+    return this.userTokenGenerate(token.userId)
   }
 
   async login(logInData: LogInDto) {

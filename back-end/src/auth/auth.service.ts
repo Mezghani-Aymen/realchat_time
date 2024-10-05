@@ -8,7 +8,6 @@ import { JwtService } from '@nestjs/jwt';
 import { LogInDto } from './dto/login.dto';
 import { RefreshToken } from './schemas/refresh-token.schema';
 import { v4 as uuidv4 } from 'uuid'
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @Injectable()
 export class AuthService {

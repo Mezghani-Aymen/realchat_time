@@ -6,12 +6,14 @@ import { SignUpDto } from './dto/signup.dto';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
 import { LogInDto } from './dto/login.dto';
-
+import { RefreshToken } from './schemas/refresh-token.schema';
+import { v4 as uuidv4 } from 'uuid'
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel(User.name) private UserModle: Model<User>,
+    @InjectModel(RefreshToken.name) private RefreshTokenModle: Model<RefreshToken>,
     private jwtService: JwtService,
   ) { }
 
@@ -47,16 +49,25 @@ export class AuthService {
         throw new UnauthorizedException("Password incorrect !");
       }
 
-      return this.jwtTokenGenerate(user.id);
+      return this.userTokenGenerate(user.id);
     } catch (error) {
       throw new BadRequestException(error);
     }
 
   }
 
-  async jwtTokenGenerate(userId) {
+  async userTokenGenerate(userId) {
     const accessToken = this.jwtService.sign({ userId })
-    return accessToken
+    const refreshToken = uuidv4()
+
+    await this.storeRefreshToken(refreshToken, userId)
+    return { accessToken, refreshToken }
+  }
+
+  async storeRefreshToken(token: string, userId) {
+    const expiryDate = new Date()
+    expiryDate.setDate(expiryDate.getDate() + 3)
+    await this.RefreshTokenModle.create({ token, userId, expiryDate })
   }
 
 }

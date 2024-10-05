@@ -39,7 +39,7 @@ export class AuthService {
   }
 
   async refreshTokens(refreshToken: string) {
-    const token = await this.RefreshTokenModle.findOneAndDelete(
+    const token = await this.RefreshTokenModle.findOne(
       {
         token: refreshToken,
         expiryDate: { $gte: new Date() }
@@ -89,7 +89,11 @@ export class AuthService {
   async storeRefreshToken(token: string, userId) {
     const expiryDate = new Date()
     expiryDate.setDate(expiryDate.getDate() + 3)
-    await this.RefreshTokenModle.create({ token, userId, expiryDate })
+    await this.RefreshTokenModle.updateOne(
+      { userId },
+      { $set: { expiryDate, token } },
+      { upsert: true }
+    )
   }
 
 }

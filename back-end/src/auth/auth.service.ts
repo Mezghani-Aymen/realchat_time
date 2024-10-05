@@ -47,10 +47,16 @@ export class AuthService {
         throw new UnauthorizedException("Password incorrect !");
       }
 
-      return;
+      return this.jwtTokenGenerate(user.id);
     } catch (error) {
       throw new BadRequestException(error);
     }
 
   }
+
+  async jwtTokenGenerate(userId) {
+    const accessToken = this.jwtService.sign({ userId })
+    return accessToken
+  }
+
 }

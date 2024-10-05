@@ -2,6 +2,7 @@ export default () => ({
     jwt:
     {
         secret: process.env.JWT_SECRET,
+        expires: '1h'
     },
     database:
     {

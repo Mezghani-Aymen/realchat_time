@@ -65,8 +65,13 @@ export class AuthService {
       if (!hashedPasswordCompare) {
         throw new UnauthorizedException("Password incorrect !");
       }
+      const tokens = await this.userTokenGenerate(user._id)
 
-      return this.userTokenGenerate(user.id);
+      return {
+        ...tokens,
+        userId: user._id
+      }
+
     } catch (error) {
       throw new BadRequestException(error);
     }
